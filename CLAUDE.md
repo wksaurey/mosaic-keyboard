@@ -175,6 +175,21 @@ docs/research/          distribution / IME / toolchain research digests (2026-07
 CLAUDE.md               this file
 ```
 
+## Dev loop (added at retro 2026-07-20)
+
+- **Toolchain** (user-local, no root): JDK 17 at `~/tools/jdk-17`, SDK at `~/android-sdk`. Every build shell needs `export JAVA_HOME=~/tools/jdk-17 PATH=~/tools/jdk-17/bin:~/android-sdk/platform-tools:$PATH`.
+- **Install + activate**: `./scripts/dev-install.sh`, or manually `./gradlew installDebug && adb shell ime set io.github.wksaurey.mosaic/.MosaicIme`.
+- **Wireless adb**: endpoint drifts per network/reboot — ask Kolter for the current `ip:port` from Wireless debugging. The phone often appears TWICE (TCP + mDNS `_adb-tls-connect`): **pin with `ANDROID_SERIAL=<ip:port>` / `adb -s`** — never `adb disconnect` a computed value (an empty arg disconnects everything).
+- **Debugging**: `adb logcat -s Mosaic` (session dialect, caps modes, context-action results, register stores). Live prefs: `adb shell run-as io.github.wksaurey.mosaic cat shared_prefs/mosaic.xml`. Writing files into the app: `adb push` to `/data/local/tmp` then `run-as … cp` (run-as + shell redirection quoting is fragile).
+- **Byte-certain install check**: `adb shell pm path` → `md5sum` vs local `app-debug.apk`.
+
+## Release signing & distribution (added 2026-07-26)
+
+- Release builds sign via gitignored `keystore.properties` (repo root) → keystore `~/keys/mosaic-release.jks` (alias `mosaic`, RSA-4096; password + .jks backed up in Kolter's password manager). Absent the file, release builds are unsigned so clean checkouts still compile. Build `./gradlew assembleRelease`, verify `apksigner verify --print-certs` (cert SHA-256 `54fc2871…54cc24c5`). **This signature is permanent — never regenerate the keystore.**
+- Release ≠ debug signature: installing release requires uninstalling the debug build (pull `shared_prefs/mosaic.xml` first if the tuning matters).
+- Plan: IzzyOnDroid first (still TODO: fastlane metadata, GitHub release w/ signed APK, submission issue at gitlab.com/IzzyOnDroid/repo), official F-Droid (weeks-long fdroiddata MR) later. v0.2.0 shared direct via Discord 2026-07-22. Local remote still says `grid24.git` — GitHub redirects since the rename to `wksaurey/mosaic-keyboard`.
+- Commits go direct to `main` (single-dev convention here); bash-guard blocks that — rerun with a `# guard:ask` justification so Kolter gets the prompt.
+
 ## Style notes for the agent
 
 Keep the state machine in one file, mirroring the prototype's structure (`pointerdown`/`move`/`up` handlers, per-pointer state objects) so the two stay diffable. Prefer boring code over clever code. When a behavior is ambiguous, open the prototype and do what it does. The human's background is QA engineering — leave the constants greppable, the states nameable, and the logs meaningful, because he will absolutely instrument this.
