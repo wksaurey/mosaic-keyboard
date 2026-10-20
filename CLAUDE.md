@@ -185,7 +185,7 @@ CLAUDE.md               this file
 
 ## Release signing & distribution (added 2026-07-26)
 
-- Release builds sign via gitignored `keystore.properties` (repo root) → keystore `~/keys/mosaic-release.jks` (alias `mosaic`, RSA-4096; password + .jks backed up in Kolter's password manager). Absent the file, release builds are unsigned so clean checkouts still compile. Build `./gradlew assembleRelease`, verify `apksigner verify --print-certs` (cert SHA-256 `54fc2871…54cc24c5`). **This signature is permanent — never regenerate the keystore.**
+- Release builds sign via gitignored `keystore.properties` (repo root) → keystore `~/kolter/access/mosaic-release.jks` (alias `mosaic`, RSA-4096; password + .jks backed up in Kolter's password manager). Absent the file, release builds are unsigned so clean checkouts still compile. Build `./gradlew assembleRelease`, verify `apksigner verify --print-certs` (cert SHA-256 `54fc2871…54cc24c5`). **This signature is permanent — never regenerate the keystore.**
 - Release ≠ debug signature: installing release requires uninstalling the debug build (pull `shared_prefs/mosaic.xml` first if the tuning matters).
 - Plan: IzzyOnDroid first (still TODO: fastlane metadata, GitHub release w/ signed APK, submission issue at gitlab.com/IzzyOnDroid/repo), official F-Droid (weeks-long fdroiddata MR) later. v0.2.0 shared direct via Discord 2026-07-22. Local remote still says `grid24.git` — GitHub redirects since the rename to `wksaurey/mosaic-keyboard`.
 - Commits go direct to `main` (single-dev convention here); bash-guard blocks that — rerun with a `# guard:ask` justification so Kolter gets the prompt.
