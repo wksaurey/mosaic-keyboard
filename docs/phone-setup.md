@@ -46,7 +46,7 @@ adb devices        # should list the phone as "device"
 ## 5. First install
 
 ```bash
-cd ~/kolter/code/grid24
+cd ~/kolter/code/mosaic-keyboard
 ./scripts/dev-install.sh
 ```
 
